@@ -80,13 +80,73 @@ function init(app, connection){
                 }
                 rec[0]["positions"] = pos;
                 res.json(rec);
-                // jsondata.push(
-                //     {positions: pos}
-                // );
-                // res.json(jsondata);
             });
         });
     });
+
+    app.all('/applyRecruit', function (req, res) {
+        console.log(req.path);
+        var rec_idx = req.body.idx;         // Article index
+        var userKey = req.body.userKey;     // User key
+        var position = req.body.position;     // User key
+
+        connection.query('SELECT COUNT(*) as count FROM RECRUIT_STATE WHERE userKey = ' + mysql.escape(userKey) + ' AND rec_idx = ' + mysql.escape(rec_idx), function (err, rows) {
+            if (err) {
+                throw err;
+            }
+            
+            if(rows[0].count > 0) {
+                res.json({
+                    success: false,
+                    message: '이미 해당 팀에 신청하였습니다.'
+                });
+            }
+            else {
+                connection.query('INSERT INTO RECRUIT_STATE (userKey, rec_idx, position) VALUES (' + mysql.escape(userKey) + ', ' + mysql.escape(rec_idx) + ', ' + mysql.escape(position) + ')', function (err, rows) {
+                    if (err) {
+                        console.log(err);
+                        res.json({
+                            success: false,
+                            message: '신청 에러 발생. 잠시 후 다시 시도해주세요.'
+                        });
+                    }
+                    else {
+                        res.json({
+                            success: true,
+                            message: '신청이 완료되었습니다.'
+                        });
+                    }
+                });
+            }
+
+        });
+
+        
+    });
+
+    app.all('/setApplyStatus', function (req, res) {
+        console.log(req.path);
+        var rec_idx = req.body.idx;         // Article index
+        var userKey = req.body.userKey;     // User key
+        var status = req.body.status;
+        
+        connection.query('UPDATE RECRUIT_STATE SET status = ' + status + ' where rec_idx = ' + rec_idx + ' AND userKey = ' + userKey, function (err, rows) {
+            if (err) {
+                console.log(err);
+                res.json({
+                    success: false,
+                    message: '변경 실패'
+                });
+            }
+            else {
+                res.json({
+                    success: true,
+                    message: '변경되었습니다'
+                });
+            }
+        });
+    });
+
 
     function getLastInsertId(callback) {
         connection.query('SELECT LAST_INSERT_ID() as idx;', function (err, rows) {
