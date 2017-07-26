@@ -1,12 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\modules",
-    "\\node_modules",
-    "\\node_modules\\express",
-    "\\node_modules\\express\\lib",
-    "\\node_modules\\express\\lib\\router"
+    "\\modules"
   ],
-  "SelectedNode": "\\modules\\account.js",
+  "SelectedNode": "\\modules\\recruit.js",
   "PreviewInSolutionExplorer": false
 }

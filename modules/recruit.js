@@ -28,7 +28,8 @@ function init(app, connection){
                 getLastInsertId(function(idx) {
                     var values = [];
                     for(var k in positionData) {
-                        values.push([idx, mysql.escape(positionData[k])]);
+                        console.log(mysql.escape(positionData[k]));
+                        values.push([idx, positionData[k]]);
                     }
                     connection.query('INSERT INTO POSITIONS (rec_idx, position) VALUES ?', [values] , function (err, rows) {
                         if (err) {
@@ -56,11 +57,34 @@ function init(app, connection){
     app.all('/getRecruitList', function (req, res) {
         console.log(req.path);
 
-        connection.query('SELECT * FROM RECRUIT', function (err, rows) {
+        connection.query('SELECT idx, title, category, isEnd FROM RECRUIT', function (err, rows) {
             if (err) {
                 throw err;
             }
             res.json(rows);
+        });
+    });
+
+    app.all('/getRecruitBody', function (req, res) {
+        console.log(req.path);
+        var idx = req.body.idx;         // Article title
+
+        connection.query('SELECT * FROM RECRUIT where idx = ' + mysql.escape(idx), function (err, rec) {
+            if (err) {
+                throw err;
+            }
+
+            connection.query('SELECT position, isEnd FROM POSITIONS where rec_idx = ' + mysql.escape(idx), function (err, pos) {
+                if (err) {
+                    throw err;
+                }
+                rec[0]["positions"] = pos;
+                res.json(rec);
+                // jsondata.push(
+                //     {positions: pos}
+                // );
+                // res.json(jsondata);
+            });
         });
     });
 
