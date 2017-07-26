@@ -16,6 +16,7 @@ var connection = mysql.createConnection({
 var  server = app.listen(3141, function () {
     console.log("Express server has started on port 3141");
     require('./modules/account.js').init(app, connection);
+    require('./modules/recruit').init(app, connection);
 })
 
 app.use(bodyParser.json());
