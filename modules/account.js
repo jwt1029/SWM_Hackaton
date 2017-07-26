@@ -35,11 +35,12 @@ function init(app, connection){
                             });
                         }
                         else {
-                            var userKey = getUserKey(id, pw);
-                            res.json({
-                                success: true,
-                                message: '환영합니다 ' + name,
-                                userKey: userKey
+                            getUserKey(id, pw, function(userKey) {
+                                res.json({
+                                    success: true,
+                                    message: '환영합니다 ' + name,
+                                    userKey: userKey
+                                });
                             });
                         }
                     });

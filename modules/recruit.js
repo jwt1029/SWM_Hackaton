@@ -11,11 +11,13 @@ function init(app, connection){
         console.log(req.path);
 
         var title = req.body.title;         // Article title
+        var master = req.body.userKey;   // Article category
         var body = req.body.body;           // Article body
         var category = req.body.category;   // Article category
         var positions = req.body.positions; // Member position
 
-        connection.query('INSERT INTO RECRUIT (title, body, category) VALUES (' + mysql.escape(title) + ',' + mysql.escape(body) + ',' + mysql.escape(category) + ');', function (err, rows) {
+        connection.query('INSERT INTO RECRUIT (master, title, body, category) VALUES (' + master + ',' + mysql.escape(title)
+                + ',' + mysql.escape(body) + ',' + mysql.escape(category) + ');', function (err, rows) {
             if (err) {
                 console.log(err);
                 res.json({
@@ -57,7 +59,7 @@ function init(app, connection){
     app.all('/getRecruitList', function (req, res) {
         console.log(req.path);
 
-        connection.query('SELECT idx, title, category, isEnd FROM RECRUIT', function (err, rows) {
+        connection.query('SELECT idx, master, title, category, isEnd FROM RECRUIT', function (err, rows) {
             if (err) {
                 throw err;
             }
@@ -120,8 +122,6 @@ function init(app, connection){
             }
 
         });
-
-        
     });
 
     app.all('/setApplyStatus', function (req, res) {
