@@ -15,7 +15,6 @@ function init(app, connection){
         var pw_again = req.body.password_again; // User PW Again
         var name = req.body.name;   // User Name
 
-        console.log('id',id);
         if(pw != undefined && pw == pw_again) {
 
             connection.query('SELECT COUNT(*) as count FROM ACCOUNT WHERE userID = ' + mysql.escape(id), function (err, rows) {
@@ -53,8 +52,6 @@ function init(app, connection){
                     });
                 }
             });
-            
-
         }
         else if(pw != pw_again){
             res.json({
@@ -75,28 +72,36 @@ function init(app, connection){
         var id = req.body.id;       // User ID
         var pw = req.body.password; // User PW
         
-        var accountCount; // = SELECT COUNT(*) FROM ACCOUNT WHERE userID = ' + escape(id) + ', userPW = ' + escape(pw); 
-        if(accountCount > 0) {
-            var userKey = getUserKey(id, pw);
-            res.json({
-                success: false,
-                message: null,
-                userKey: userKey
-            });
-        }
-        else {
-            res.json({
-                success: false,
-                message: '아이디 또는 비밀번호를 확인해주세요.'
-            });
-        }
-    });
-
-    function getUserKey(id, pw) {
-        connection.query('SELECT userKey FROM ACCOUNT WHERE userID = ' + mysql.escape(id) + ', userPW = ' + mysql.escape(pw), function (err, rows) {
+        connection.query('SELECT COUNT(*) as count FROM ACCOUNT WHERE userID = ' + mysql.escape(id) + ' AND userPW = ' + mysql.escape(pw), function (err, rows) {
             if (err) {
                 throw err;
             }
+
+            var accountCount = rows[0].count;
+            if(accountCount > 0) {
+                var userKey = getUserKey(id, pw, function(userKey) {
+                    res.json({
+                        success: true,
+                        message: null,
+                        userKey: userKey
+                    });
+                });
+            }
+            else {
+                res.json({
+                    success: false,
+                    message: '아이디 또는 비밀번호를 확인해주세요.'
+                });
+            }   
+        });
+    });
+
+    function getUserKey(id, pw, callback) {
+        connection.query('SELECT userKey FROM ACCOUNT WHERE userID = ' + mysql.escape(id) + ' AND userPW = ' + mysql.escape(pw), function (err, rows) {
+            if (err) {
+                throw err;
+            }
+            callback(rows[0].userKey);
             return rows[0].userKey;
         });
     }
