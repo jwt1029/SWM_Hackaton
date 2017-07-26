@@ -23,32 +23,37 @@ function init(app, connection){
                     throw err;
                 }
 
-                console.log(rows);
-
-                res.json(rows);
+                var exist = rows[0].count;
+                console.log('exist',exist);
+                if(exist < 1) {
+                
+                    connection.query('INSERT INTO ACCOUNT (userID, userPW, userName) VALUES (' + mysql.escape(id) + ',' + mysql.escape(pw) + ',' + mysql.escape(name) + ');', function (err, rows) {
+                        if (err) {
+                            console.log(err);
+                            res.json({
+                                success: false,
+                                message: '알수 없는 오류 발생.'
+                            });
+                        }
+                        else {
+                            var userKey = getUserKey(id, pw);
+                            res.json({
+                                success: true,
+                                message: '환영합니다 ' + name,
+                                userKey: userKey
+                            });
+                        }
+                    });
+                    
+                }
+                else {
+                    res.json({
+                        success: false,
+                        message: '이미 존재하는 아이디입니다.'
+                    });
+                }
             });
-            // var exist; // = 'SELECT COUNT(*) FROM ACCOUNT WHERE userID = ' + escape(id);
-            // if(exist > 0) {
-            //     // INSERT INTO ACCOUNT (userID, userPW, userName) VALUES (' + escape(id) + ',' + escape(pw) + ',' + escape(name) + ');'
-            //     var userKey = getUserKey(id, pw);
-            //     res.json({
-            //         success: true,
-            //         message: '환영합니다 ' + name,
-            //         userKey: userKey
-            //     });
-            // }
-            // else {
-            //     res.json({
-            //         success: false,
-            //         message: '이미 존재하는 아이디입니다.'
-            //     });
-            // }
             
-            // connection.query("INSERT INTO ACCOUNT (userName, userID, userPW) values ('TESTER1', 'test1', 'test1');", function (err, rows) {
-            //     if (err) {
-            //         throw err;
-            //     }
-            // });
 
         }
         else if(pw != pw_again){
@@ -88,7 +93,12 @@ function init(app, connection){
     });
 
     function getUserKey(id, pw) {
-        // return SELECT userKey FROM ACCOUNT WHERE userID = ' + escape(id) + ', userPW = ' + escape(pw);
+        connection.query('SELECT userKey FROM ACCOUNT WHERE userID = ' + mysql.escape(id) + ', userPW = ' + mysql.escape(pw), function (err, rows) {
+            if (err) {
+                throw err;
+            }
+            return rows[0].userKey;
+        });
     }
 
 }
