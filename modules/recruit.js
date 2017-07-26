@@ -10,10 +10,10 @@ function init(app, connection){
     app.all('/createRecruit', function (req, res) {
         console.log(req.path);
 
-        var title = req.body.title;        // Article title
-        var body = req.body.body;   // Article body
-        var category = req.body.category; // Article category
-        var positions = req.body.positions;
+        var title = req.body.title;         // Article title
+        var body = req.body.body;           // Article body
+        var category = req.body.category;   // Article category
+        var positions = req.body.positions; // Member position
 
         connection.query('INSERT INTO RECRUIT (title, body, category) VALUES (' + mysql.escape(title) + ',' + mysql.escape(body) + ',' + mysql.escape(category) + ');', function (err, rows) {
             if (err) {
@@ -50,6 +50,18 @@ function init(app, connection){
             }
         });
 
+    });
+
+    
+    app.all('/getRecruitList', function (req, res) {
+        console.log(req.path);
+
+        connection.query('SELECT * FROM RECRUIT', function (err, rows) {
+            if (err) {
+                throw err;
+            }
+            res.json(rows);
+        });
     });
 
     function getLastInsertId(callback) {
